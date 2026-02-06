@@ -139,3 +139,73 @@ cd frontend && npm run dev
 - Migrated agent from old `WorkerOptions` pattern to new `AgentServer` + `@server.rtc_session()` pattern
 - Fixed `ChatMessage.content` to be a list instead of string
 - Agent successfully registering with LiveKit Cloud
+
+---
+
+## Assignment Requirements (Vaiu AI Internship)
+
+### Use Case: Restaurant Booking Voice Agent
+Build an intelligent voice agent that helps users book restaurant tables through natural conversation.
+
+### Core Features Required
+1. **Greet user** and understand booking intent
+2. **Collect booking info via voice:**
+   - Number of guests
+   - Preferred date and time
+   - Cuisine preference (Italian, Chinese, Indian, etc.)
+   - Special requests (birthday, anniversary, dietary restrictions)
+3. **Weather integration** - Fetch real-time weather for booking date, suggest indoor/outdoor seating
+4. **Confirm booking** details via voice
+5. **Store booking** in database
+
+### Technical Requirements
+
+#### Must Have
+| Feature | Details |
+|---------|---------|
+| **Voice Interaction** | STT (user input) + TTS (agent responses), natural voice commands |
+| **Backend API** | Node.js + Express RESTful endpoints |
+| **Database** | MongoDB for bookings |
+| **Weather API** | Real data from OpenWeatherMap/WeatherAPI (NOT random LLM responses) |
+
+#### Backend Endpoints
+```
+POST   /api/bookings      # Create new booking
+GET    /api/bookings      # Get all bookings
+GET    /api/bookings/:id  # Get specific booking
+DELETE /api/bookings/:id  # Cancel booking
+```
+
+#### Booking Schema
+```javascript
+{
+  bookingId: String,
+  customerName: String,
+  numberOfGuests: Number,
+  bookingDate: Date,
+  bookingTime: String,
+  cuisinePreference: String,
+  specialRequests: String,
+  weatherInfo: Object,
+  seatingPreference: String,  // indoor/outdoor
+  status: String,             // confirmed, pending, cancelled
+  createdAt: Date
+}
+```
+
+#### Weather Integration (Critical)
+- **MUST fetch real data** from weather API
+- Suggest seating based on weather:
+  - Sunny → "Perfect weather for outdoor dining!"
+  - Rainy → "Looks like rain. Indoor seating would be better."
+
+### Deliverables Checklist
+- [ ] Working voice agent (runs locally)
+- [ ] Clean code with comments
+- [ ] README with setup instructions
+- [ ] Screen recording (2-3 min) demo
+
+### Key Resources
+- **LiveKit Agents**: https://docs.livekit.io/agents/
+- **OpenWeatherMap**: https://openweathermap.org/api
+- **Web Speech API**: https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API
