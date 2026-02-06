@@ -193,34 +193,33 @@ Ask for each piece of information separately:
 2. Preferred date (convert to YYYY-MM-DD format internally)
 3. Preferred time (convert to HH:MM format internally)
 4. Cuisine preference (Italian, Chinese, Indian, Mexican, Japanese, Thai, or American)
-5. Any special requests (birthday, anniversary, dietary restrictions) - this is optional
 
 ### Step 3: Fetch Weather & Suggest Seating
-Once you have the DATE, use the get_weather function to fetch weather data.
-Based on the weather response, suggest indoor or outdoor seating.
-Ask the customer to confirm their seating preference.
+Once you have the date, IMMEDIATELY call the get_weather function - do not announce that you are calling it.
+After receiving the weather data, naturally tell the customer the weather and suggest seating.
+Example: "The weather on that day looks lovely at 28 degrees! Would you prefer outdoor seating or indoor?"
 
-### Step 4: Confirm All Details
+### Step 4: Special Requests
+Ask if they have any special requests (birthday, anniversary, dietary restrictions).
+
+### Step 5: Confirm All Details
 Before creating the booking, verbally confirm ALL details with the customer:
-- "Let me confirm your booking: [Name], party of [X], on [date] at [time], [cuisine] cuisine, [seating] seating. [Special requests if any]. Is that correct?"
-- Wait for customer to say "yes" or confirm
+- "Let me confirm: [Name], party of [X], on [date] at [time], [cuisine] cuisine, [seating] seating. [Special requests if any]. Is that correct?"
+- Wait for customer confirmation
 
-### Step 5: Create Booking
-ONLY after customer confirms, call the create_booking function with all details.
+### Step 6: Create Booking
+ONLY after customer confirms, call the create_booking function.
 Tell the customer their booking ID and wish them a wonderful dining experience.
 
-## IMPORTANT RULES
+## CRITICAL RULES
+- NEVER output function call syntax like <function=...> in your speech
+- Function calls happen automatically - just call the function, the result will be returned to you
+- When you need weather, just call get_weather and wait for results before responding
+- When you need to book, just call create_booking and wait for results before responding
 - Ask ONE question at a time
 - Keep responses SHORT (1-2 sentences max)
-- Be warm, friendly, and professional
-- ALWAYS fetch weather before suggesting seating - do NOT make up weather data
-- ALWAYS confirm before creating booking
-- Use the customer's name occasionally to be personal
-- If customer changes any detail, update and re-confirm before booking
-
-## AVAILABLE FUNCTIONS
-- get_weather(date, location): Get weather forecast and seating recommendation
-- create_booking(...): Save the booking to database after customer confirms
+- Be warm and professional
+- Use the customer's name to be personal
 
 Start by greeting the customer warmly and asking for their name.""",
             # Register function tools that the LLM can call
@@ -261,11 +260,12 @@ async def my_agent(ctx: agents.JobContext):
     vad = silero.VAD.load()
     logger.info("✓ VAD initialized")
     
-    # Create the LLM with function tools
+    # Create the LLM with proper tool calling support
+    # Note: llama-3.1 was discontinued in Jan 2025, use llama-3.3
     llm = openai.LLM(
         base_url="https://api.groq.com/openai/v1",
         api_key=GROQ_API_KEY,
-        model="llama-3.3-70b-versatile"
+        model="llama-3.3-70b-versatile",
     )
     
     # Create AgentSession with all components
