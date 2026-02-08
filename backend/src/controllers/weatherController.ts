@@ -17,7 +17,10 @@ interface WeatherData {
 export async function getWeatherForDate(req: Request, res: Response): Promise<void> {
     try {
         const { date, location } = req.query;
-        const city = (location as string) || process.env.DEFAULT_LOCATION || 'Mumbai';
+        // Handle 'null' string that AI sometimes sends
+        const city = (location && location !== 'null')
+            ? (location as string)
+            : (process.env.DEFAULT_LOCATION || 'Mumbai');
         const apiKey = process.env.OPENWEATHER_API_KEY;
 
         if (!apiKey || apiKey === 'your_openweather_api_key_here') {
@@ -32,6 +35,13 @@ export async function getWeatherForDate(req: Request, res: Response): Promise<vo
 
         // Find closest forecast to requested date
         const requestedDate = date ? new Date(date as string) : new Date();
+
+        // Validate date
+        if (isNaN(requestedDate.getTime())) {
+            res.status(400).json({ success: false, error: 'Invalid date format' });
+            return;
+        }
+
         const forecasts = response.data.list;
 
         let closest = forecasts[0];

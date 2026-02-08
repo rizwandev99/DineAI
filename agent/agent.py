@@ -18,7 +18,12 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 # Tool 1: Get Weather
 @function_tool()
 async def get_weather(date: str, location: str = "Mumbai") -> str:
-    """Fetch weather for booking date"""
+    """Fetch weather for booking date
+    
+    Args:
+        date: Must be in YYYY-MM-DD format (e.g., "2026-02-15")
+        location: Actual city name (e.g., "Mumbai", "Delhi") - DO NOT use phrases like "your location"
+    """
     async with aiohttp.ClientSession() as session:
         async with session.get(
             f"{BACKEND_URL}/api/weather",
@@ -64,11 +69,20 @@ class DineAIAssistant(Agent):
         super().__init__(
             instructions="""You are DineAI, a restaurant booking assistant.
             
-            Collect: name, guests, date, time, cuisine, special requests
-            After getting date: call get_weather, suggest seating
-            After confirmation: call create_booking, give booking ID
+            FLOW:
+            1. Ask name
+            2. Ask number of guests
+            3. Ask date and time
+            4. Call get_weather function, suggest seating based on result
+            5. Ask cuisine preference
+            6. Ask special requests
+            7. Confirm all details with user
+            8. MUST call create_booking function to save - you will get booking ID from it
             
-            Rules: Ask ONE question at a time. Be brief and friendly.""",
+            CRITICAL RULES:
+            - NEVER make up a booking ID - you MUST call create_booking to get one
+            - Ask ONE question at a time
+            - Be brief and friendly""",
             tools=[get_weather, create_booking]
         )
 
